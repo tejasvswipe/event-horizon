@@ -1,6 +1,6 @@
 # Cosmic Daily
 <img width="959" height="505" alt="Screenshot 2026-09-18 181020" src="https://github.com/user-attachments/assets/192c6603-0324-4d5e-9ced-282151851597" />
-<img width="754" height="269" alt="Screenshot 2026-09-18 165133" src="https://github.com/user-attachments/assets/1d23642e-e368-4990-af63-7f4c4374d2f1" />
+
 
 # Cosmic Daily
 
@@ -9,12 +9,11 @@
 A NASA-powered custom new-tab dashboard that surface the Astronomy Picture of the Day every-time you open a tab.
 
 
-
-<!-- Add a screenshot or GIF of the dashboard here -->
-
+<img width="754" height="269" alt="Screenshot 2026-09-18 165133" src="https://github.com/user-attachments/assets/1d23642e-e368-4990-af63-7f4c4374d2f1" />
 
 
-<!-- ![Cosmic Daily screenshot](./docs/screenshot.png) -->
+
+
 
 
 
