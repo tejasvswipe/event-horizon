@@ -1,5 +1,128 @@
 # Cosmic Daily
+<img width="959" height="505" alt="Screenshot 2026-09-18 181020" src="https://github.com/user-attachments/assets/192c6603-0324-4d5e-9ced-282151851597" />
+<img width="754" height="269" alt="Screenshot 2026-09-18 165133" src="https://github.com/user-attachments/assets/1d23642e-e368-4990-af63-7f4c4374d2f1" />
 
+# Cosmic Daily
+
+
+
+A NASA-powered custom new-tab dashboard that surface the Astronomy Picture of the Day every-time you open a tab.
+
+
+
+<!-- Add a screenshot or GIF of the dashboard here -->
+
+
+
+<!-- ![Cosmic Daily screenshot](./docs/screenshot.png) -->
+
+
+
+[🚀 Try it live →](https://event-horizon-frr.vercel.app)
+
+
+
+## Quick start
+
+
+
+Open the link above, there is nothing to install.
+
+
+
+## Features
+
+
+
+- Pulls the daily image(or video) from NASA's Astronomy Picture of the Day(APOD) API
+
+
+
+- Replaces your new-tab page with fresh cosmic imagery every day.
+
+
+
+- Displays the title, date and explanation for each image.
+
+
+
+- Clean, minimalist and fast dashboard UI.
+
+
+
+<!-- Add/remove bullets to match what's actually implemented -->
+
+
+
+## Running it locally
+
+
+
+<!-- Fill in the real values for your stack -->
+
+
+
+```bash
+
+
+
+git clone https://github.com///.git
+
+
+
+cd
+
+
+
+npm install
+
+
+
+npm run dev
+
+
+
+```
+
+
+
+You'll need a NASA API key(free at [api.nasa.gov](https://api.nasa.gov)) as an environment variable:
+
+
+
+```
+
+
+
+NASA_API_KEY=your_key_here
+
+
+
+```
+
+
+
+## How it works
+
+
+
+<!-- Swap this for a real note on an interesting technical decision —
+
+
+
+e.g. how you cache the daily image, handle the new-tab override,
+
+
+
+or deal with APOD's occasional video-of-the-day responses. -->
+
+
+
+## Credits
+
+
+
+- [NASA APOD API](https://api.nasa.gov) for the daily imagery and data
 Cosmic Daily is a custom new-tab dashboard that replaces a blank browser tab with a daily view of NASA's universe. It uses NASA's Astronomy Picture of the Day API to show an image or video, title, date, explanation, and a link to the original media.
 
 ## Purpose
