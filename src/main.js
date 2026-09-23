@@ -1,4 +1,5 @@
 import './style.css'
+import stickerUrl from './assets/images.png'
 
 const API_KEY = import.meta.env.VITE_NASA_API_KEY || 'DEMO_KEY'
 const today = new Date().toISOString().slice(0, 10)
@@ -15,7 +16,7 @@ const state = {
 app.innerHTML = `
   <div class="site-shell">
     <header class="topbar">
-      <img class="top-sticker" src="/hack-club-sticker.png" alt="Hack Club" />
+      <img class="top-sticker" src="${stickerUrl}" alt="Hack Club" />
       <a class="wordmark" href="#top" aria-label="Cosmic Daily home"><span class="wordmark-star">✦</span><span>cosmic<br><em>daily</em></span></a>
       <div class="topbar-note"><span class="pulse"></span>NASA / APOD FIELD NOTES <span class="topbar-date" id="topbar-date"></span></div>
       <button class="log-toggle" id="log-toggle" type="button"><span>orbit log</span><b id="saved-count">0</b></button>

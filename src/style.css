@@ -86,7 +86,7 @@ main { max-width: 1440px; margin: auto; padding: 0 clamp(18px, 4vw, 60px) 60px; 
 body { background: #f00086; }
 .site-shell { background: var(--paper); }
 .topbar { position: relative; z-index: 2; min-height: 74px; border-bottom: 2px solid var(--ink); background: var(--paper); }
-.top-sticker { position: absolute; top: 4px; left: clamp(18px, 4vw, 60px); z-index: 3; width: 122px; height: auto; transform: translate(-18px, -4px) rotate(-6deg); filter: drop-shadow(6px 6px 0 var(--ink)); }
+.top-sticker { position: absolute; top: 3px; left: clamp(18px, 4vw, 60px); z-index: 3; width: 154px; height: auto; transform: translate(-26px, -12px) rotate(-7deg); filter: drop-shadow(6px 6px 0 var(--ink)); }
 .wordmark { margin-left: 76px; }
 .wordmark-star { border: 2px solid var(--ink); border-radius: 0; background: var(--coral); color: var(--ink); transform: rotate(8deg); }
 .wordmark em, .eyebrow, .intro-copy h1 i, .observation-head span:first-child, .media-link { color: var(--coral-deep); }
@@ -107,4 +107,4 @@ body { background: #f00086; }
 .close-button { border: 2px solid var(--ink); border-radius: 0; background: var(--coral); box-shadow: 3px 3px 0 var(--ink); }
 .saved-thumb { border: 2px solid var(--ink); box-shadow: 3px 3px 0 var(--ink); }
 .saved-item { border-top: 2px solid var(--ink); }
-@media (max-width: 560px) { .top-sticker { left: 16px; width: 100px; transform: translate(-7px, -2px) rotate(-6deg); }.wordmark { margin-left: 82px; } }
+@media (max-width: 560px) { .top-sticker { left: 16px; width: 126px; transform: translate(-12px, -8px) rotate(-7deg); }.wordmark { margin-left: 82px; } }
