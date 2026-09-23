@@ -14,7 +14,7 @@
   --coral: #ff2a00;
   --coral-deep: #fa00a2;
   --lime: #fcff48;
-  --line: 1px solid rgba(23, 34, 56, .27);
+  --line: 1px solid rgba(0, 0, 0, 0.27);
   --mono: 'DM Mono', monospace;
   --serif: 'Fraunces', Georgia, serif;
 }
