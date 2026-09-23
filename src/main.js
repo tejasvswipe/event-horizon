@@ -1,117 +1,206 @@
 import './style.css'
 
 const API_KEY = import.meta.env.VITE_NASA_API_KEY || 'DEMO_KEY'
-const today = new Date().toISOString().split('T')[0]
+const today = new Date().toISOString().slice(0, 10)
 const app = document.querySelector('#app')
+const storageKey = 'cosmic-daily-orbit-log'
+
+const state = {
+  date: today,
+  current: null,
+  saved: readSaved(),
+  loading: false,
+}
 
 app.innerHTML = `
-  <main class="browser-window">
-    <div class="window-dots" aria-hidden="true"><i></i><i></i><i></i></div>
-    <div class="tab-strip">
-      <div class="active-tab"><span class="tab-mark">✦</span> Cosmic Daily <button class="tab-close" aria-label="Close tab">×</button></div>
-      <button class="new-tab" aria-label="New tab">+</button>
-      <div class="window-actions" aria-hidden="true"><span>—</span><span>□</span><span>×</span></div>
-    </div>
-    <div class="toolbar">
-      <button class="nav-button" aria-label="Back">←</button>
-      <button class="nav-button" aria-label="Forward">→</button>
-      <button class="nav-button" aria-label="Reload" id="reload-button">↻</button>
-      <div class="address-bar"><span>⌕</span><span>cosmic-daily.local / universe / today</span><b>✦</b></div>
-      <button class="toolbar-button" aria-label="Customize">☷</button>
-      <button class="profile" aria-label="Profile">C</button>
-      <button class="toolbar-button" aria-label="More">⋮</button>
-    </div>
+  <div class="site-shell">
+    <header class="topbar">
+      <a class="wordmark" href="#top" aria-label="Cosmic Daily home"><span class="wordmark-star">✦</span><span>cosmic<br><em>daily</em></span></a>
+      <div class="topbar-note"><span class="pulse"></span>NASA / APOD FIELD NOTES <span class="topbar-date" id="topbar-date"></span></div>
+      <button class="log-toggle" id="log-toggle" type="button"><span>orbit log</span><b id="saved-count">0</b></button>
+    </header>
 
-    <section class="tab-page">
-      <header class="masthead">
-        <div class="brand-block"><span class="tiny-label">NEW TAB / 001</span><h1>COSMIC<br><span>DAILY</span></h1></div>
-        <div class="date-block"><span class="tiny-label">LOCAL ORBITAL TIME</span><strong id="clock">--:--</strong><span id="day-label">TODAY / EARTH</span></div>
-        <div class="sticker">LOOK<br>UP<br>↑</div>
-      </header>
+    <main id="top">
+      <section class="intro-grid">
+        <div class="intro-copy">
+          <p class="eyebrow">A DAILY OBSERVATION / VOL. 01</p>
+          <h1>Look closer.<br><i>Think farther.</i></h1>
+          <p class="lede">A small window into the universe, curated one day at a time by NASA’s Astronomy Picture of the Day.</p>
+        </div>
+        <div class="orbital-note" aria-label="Current day in the orbital calendar">
+          <span class="orbital-label">EARTH / LOCAL ORBIT</span>
+          <strong id="clock">--:--:--</strong>
+          <span id="day-label">TODAY / EARTH</span>
+          <div class="orbit-lines"><i></i><i></i><i></i></div>
+        </div>
+      </section>
 
-      <div class="dashboard">
-        <aside class="side-rail">
-          <div class="rail-title">NASA<br>APOD</div>
-          <div class="number">01</div>
-          <div class="vertical-note">ASTRONOMY PICTURE OF THE DAY</div>
-          <div class="rail-star">✹</div>
+      <section class="workspace">
+        <aside class="date-desk">
+          <div>
+            <p class="eyebrow">THE DATE DESK</p>
+            <h2>Choose<br>a day.</h2>
+            <p class="desk-copy">Every date holds a different corner of the sky. Go backwards, or let the universe pick.</p>
+          </div>
+          <div class="date-tools">
+            <label for="date-picker">OBSERVATION DATE</label>
+            <input id="date-picker" type="date" aria-label="Choose an astronomy picture date" />
+            <button class="button button-ink" id="today-button" type="button">Return to today <span>↗</span></button>
+            <button class="button button-coral" id="shuffle-button" type="button"><span class="shuffle-icon">⤨</span> Cosmic shuffle</button>
+          </div>
+          <p class="shortcut"><kbd>T</kbd> return to today <span>·</span> <kbd>S</kbd> shuffle</p>
         </aside>
 
-        <section class="content-stage" id="content-stage">
-          <div class="stage-topline"><span id="signal-status">SIGNAL / CONNECTING</span><span>SCROLL INSIDE TO EXPLORE ↓</span></div>
-          <div id="result"><p class="status">Receiving a transmission from space…</p></div>
+        <section class="observation" aria-live="polite">
+          <div class="observation-head"><span id="signal-status">SIGNAL / CONNECTING</span><span id="observation-index">OBSERVATION 001</span></div>
+          <div id="result"><p class="loading-line"><span></span>Receiving a transmission from space…</p></div>
         </section>
+      </section>
+    </main>
 
-        <aside class="control-panel">
-          <div class="panel-heading">CONTROL<br>ROOM <span>◎</span></div>
-          <label for="date-picker">SELECT DATE</label>
-          <input id="date-picker" type="date" aria-label="Choose an astronomy picture date" />
-          <button id="today-button" class="action-button" type="button">JUMP TO TODAY <span>↗</span></button>
-          <div class="rule"></div>
-          <p class="fact-label">QUICK FACT</p>
-          <p class="fact">Every day, NASA publishes a different view of our universe.</p>
-          <div class="keycap"><kbd>T</kbd><span>today shortcut</span></div>
-          <div class="panel-stamp">NO AI<br>JUST DATA<br>+ DESIGN</div>
-        </aside>
-      </div>
-
-      <footer class="footer-bar"><span>NASA / APOD API</span><span>MADE FOR CURIOUS HUMANS</span><span>IMAGE CREDIT BELOW ↘</span></footer>
-    </section>
-  </main>
+    <footer class="footer"><span>DATA: NASA / APOD</span><span>MADE FOR CURIOUS HUMANS</span><a href="https://apod.nasa.gov/apod/astropix.html" target="_blank" rel="noreferrer">VISIT THE SOURCE ↗</a></footer>
+  </div>
+  <aside class="log-drawer" id="log-drawer" aria-hidden="true">
+    <div class="drawer-head"><div><p class="eyebrow">YOUR COLLECTION</p><h2>Orbit log</h2></div><button id="log-close" class="close-button" type="button" aria-label="Close orbit log">×</button></div>
+    <p class="drawer-intro">Pin the images you want to find again. They stay here on this device.</p>
+    <div id="saved-list" class="saved-list"></div>
+  </aside>
+  <div class="drawer-scrim" id="drawer-scrim"></div>
 `
 
-const datePicker = document.querySelector('#date-picker')
-const todayButton = document.querySelector('#today-button')
-const reloadButton = document.querySelector('#reload-button')
-const result = document.querySelector('#result')
-const clock = document.querySelector('#clock')
-const signal = document.querySelector('#signal-status')
+const $ = (selector) => document.querySelector(selector)
+const datePicker = $('#date-picker')
+const result = $('#result')
+const signal = $('#signal-status')
+const savedCount = $('#saved-count')
+const savedList = $('#saved-list')
+const drawer = $('#log-drawer')
+
 datePicker.max = today
 datePicker.value = today
 
+function readSaved() {
+  try { return JSON.parse(localStorage.getItem(storageKey) || '[]') } catch { return [] }
+}
+
+function writeSaved() {
+  localStorage.setItem(storageKey, JSON.stringify(state.saved))
+  renderSaved()
+}
+
+function escapeHTML(value = '') {
+  return String(value).replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#039;', '"': '&quot;' })[char])
+}
+
+function prettyDate(date) {
+  return new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(`${date}T12:00:00`))
+}
+
 function updateClock() {
   const now = new Date()
-  clock.textContent = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(now)
-  document.querySelector('#day-label').textContent = `${new Intl.DateTimeFormat(undefined, { weekday: 'long' }).format(now).toUpperCase()} / EARTH`
+  $('#clock').textContent = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(now)
+  $('#day-label').textContent = `${new Intl.DateTimeFormat(undefined, { weekday: 'long' }).format(now).toUpperCase()} / EARTH`
+  $('#topbar-date').textContent = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' }).format(now).toUpperCase()
+}
+
+function renderSaved() {
+  savedCount.textContent = state.saved.length
+  if (!state.saved.length) {
+    savedList.innerHTML = '<div class="empty-log"><span>✦</span><p>Your log is quiet.<br>Pin a discovery to begin.</p></div>'
+    return
+  }
+  savedList.innerHTML = state.saved.map((item) => `
+    <article class="saved-item">
+      <button class="saved-thumb" data-open-date="${item.date}" type="button"><img src="${escapeHTML(item.thumb)}" alt="" loading="lazy" /></button>
+      <div><button class="saved-title" data-open-date="${item.date}" type="button">${escapeHTML(item.title)}</button><time>${prettyDate(item.date)}</time></div>
+      <button class="unpin" data-remove-date="${item.date}" type="button" aria-label="Remove ${escapeHTML(item.title)}">×</button>
+    </article>`).join('')
+}
+
+function isSaved(date) { return state.saved.some((item) => item.date === date) }
+
+function toggleSaved() {
+  if (!state.current) return
+  if (isSaved(state.current.date)) state.saved = state.saved.filter((item) => item.date !== state.current.date)
+  else state.saved.unshift({ date: state.current.date, title: state.current.title, thumb: state.current.url })
+  writeSaved()
+  renderCurrent()
+}
+
+function renderCurrent() {
+  const data = state.current
+  if (!data) return
+  const media = data.media_type === 'image'
+    ? `<img class="apod-media" src="${escapeHTML(data.url)}" alt="${escapeHTML(data.title)}" />`
+    : `<iframe class="apod-media" src="${escapeHTML(data.url)}" title="${escapeHTML(data.title)}" allowfullscreen></iframe>`
+  const saved = isSaved(data.date)
+  result.innerHTML = `
+    <article class="apod-card">
+      <div class="image-frame">
+        <div class="image-meta"><span>FIELD IMAGE / ${data.date.replaceAll('-', '.')}</span><span>${data.media_type.toUpperCase()}</span></div>
+        ${media}
+        <span class="image-corner">✦</span>
+      </div>
+      <div class="caption-row"><span>NASA / ASTRONOMY PICTURE OF THE DAY</span><time>${prettyDate(data.date)}</time></div>
+      <div class="title-row"><h2>${escapeHTML(data.title)}</h2><button class="pin-button ${saved ? 'is-saved' : ''}" id="pin-button" type="button"><span>${saved ? '★' : '☆'}</span>${saved ? 'Pinned' : 'Pin to orbit'}</button></div>
+      <p class="explanation">${escapeHTML(data.explanation)}</p>
+      <a class="media-link" href="${escapeHTML(data.hdurl || data.url)}" target="_blank" rel="noreferrer">Open the original image <span>↗</span></a>
+    </article>`
+  $('#pin-button').addEventListener('click', toggleSaved)
 }
 
 async function loadApod(date = today) {
-  result.innerHTML = '<p class="status">Receiving a transmission from space…</p>'
+  state.date = date
+  state.loading = true
+  result.innerHTML = '<p class="loading-line"><span></span>Receiving a transmission from space…</p>'
   signal.textContent = 'SIGNAL / SEARCHING'
   signal.classList.remove('online')
   try {
     const response = await fetch(`https://api.nasa.gov/planetary/apod?api_key=${API_KEY}&date=${date}`)
     if (!response.ok) throw new Error(`NASA API returned ${response.status}`)
-    const data = await response.json()
-    const media = data.media_type === 'image'
-      ? `<img class="apod-media" src="${data.url}" alt="${data.title}" />`
-      : `<iframe class="apod-media" src="${data.url}" title="${data.title}" allowfullscreen></iframe>`
-    result.innerHTML = `
-      <article class="apod-card">
-        <div class="image-frame"><span class="frame-label">FIG. ${date.replaceAll('-', '.')}</span>${media}<span class="corner-mark">↘</span></div>
-        <div class="caption-row"><span>NASA / ASTRONOMY PICTURE OF THE DAY</span><span>${data.media_type.toUpperCase()}</span></div>
-        <h2>${data.title}</h2>
-        <p class="explanation">${data.explanation}</p>
-        <a class="media-link" href="${data.hdurl || data.url}" target="_blank" rel="noreferrer">OPEN ORIGINAL IMAGE <span>↗</span></a>
-      </article>`
+    state.current = await response.json()
+    state.current.date = date
+    $('#observation-index').textContent = `OBSERVATION ${date.slice(-2)} / ${date.slice(5, 7)}`
     signal.textContent = 'SIGNAL / ONLINE'
     signal.classList.add('online')
+    renderCurrent()
   } catch (error) {
     signal.textContent = 'SIGNAL / OFFLINE'
-    result.innerHTML = '<div class="error-box"><strong>TRANSMISSION ERROR</strong><p>NASA did not answer. Check your API key or connection, then press reload.</p></div>'
+    result.innerHTML = `<div class="error-box"><span class="error-symbol">!</span><div><strong>TRANSMISSION INTERRUPTED</strong><p>NASA did not answer this time. Check your connection and try the reload button in your browser, or choose another date.</p></div></div>`
     console.error(error)
-  }
+  } finally { state.loading = false }
 }
 
+function randomDate() {
+  const start = new Date('1995-06-16T12:00:00')
+  const end = new Date(`${today}T12:00:00`)
+  const date = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()))
+  return date.toISOString().slice(0, 10)
+}
+
+function openLog() { drawer.classList.add('is-open'); drawer.setAttribute('aria-hidden', 'false'); document.body.classList.add('drawer-open') }
+function closeLog() { drawer.classList.remove('is-open'); drawer.setAttribute('aria-hidden', 'true'); document.body.classList.remove('drawer-open') }
+
+$('#today-button').addEventListener('click', () => { datePicker.value = today; loadApod(today) })
+$('#shuffle-button').addEventListener('click', () => { const date = randomDate(); datePicker.value = date; loadApod(date) })
+$('#log-toggle').addEventListener('click', openLog)
+$('#log-close').addEventListener('click', closeLog)
+$('#drawer-scrim').addEventListener('click', closeLog)
 datePicker.addEventListener('change', () => loadApod(datePicker.value))
-todayButton.addEventListener('click', () => { datePicker.value = today; loadApod(today) })
-reloadButton.addEventListener('click', () => loadApod(datePicker.value))
-document.addEventListener('keydown', (event) => {
-  if (event.key.toLowerCase() === 't' && document.activeElement.tagName !== 'INPUT') {
-    datePicker.value = today
-    loadApod(today)
-  }
+savedList.addEventListener('click', (event) => {
+  const openButton = event.target.closest('[data-open-date]')
+  const removeButton = event.target.closest('[data-remove-date]')
+  if (openButton) { const date = openButton.dataset.openDate; datePicker.value = date; loadApod(date); closeLog() }
+  if (removeButton) { state.saved = state.saved.filter((item) => item.date !== removeButton.dataset.removeDate); writeSaved() }
 })
+document.addEventListener('keydown', (event) => {
+  if (event.target.matches('input')) return
+  if (event.key.toLowerCase() === 't') { datePicker.value = today; loadApod(today) }
+  if (event.key.toLowerCase() === 's') { const date = randomDate(); datePicker.value = date; loadApod(date) }
+  if (event.key === 'Escape') closeLog()
+})
+
+renderSaved()
 updateClock()
 setInterval(updateClock, 1000)
 loadApod()
