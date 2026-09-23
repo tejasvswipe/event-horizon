@@ -11,12 +11,12 @@ Cosmic Daily is a NASA-powered custom new-tab dashboard and field journal. Each 
 
 - NASA Astronomy Picture of the Day integration with image and video support
 - Date picker for exploring previous APOD entries
-- Orbit Log for saving discoveries in `localStorage`
 - Cosmic Shuffle for jumping to a random APOD date
 - Live local clock, loading states, and friendly error handling
 - Full-resolution media links and responsive layouts
 - Keyboard shortcuts: `T` returns to today and `S` shuffles the archive
-
+## Orbit Log for saving discoveries in `localStorage`
+ it is stored in  local storge as if u get a master piece and u  wanna save
 ## Run locally
 
 1. Install dependencies:
