@@ -1,6 +1,7 @@
 # Cosmic Daily
 
 <img width="959" height="505" alt="Cosmic Daily screenshot" src="https://github.com/user-attachments/assets/192c6603-0324-4d5e-9ced-282151851597" />
+<img width="942" height="419" alt="image" src="https://github.com/user-attachments/assets/1959200c-ef16-46de-afc8-ab4315a02eb8" />
 
 Cosmic Daily is a NASA-powered custom new-tab dashboard and field journal. Each day, it brings one Astronomy Picture of the Day into a calm editorial workspace designed for looking closely rather than endlessly scrolling.
 
