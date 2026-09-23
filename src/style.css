@@ -3,17 +3,17 @@
 :root {
   font-family: 'Space Grotesk', sans-serif;
   color: #172238;
-  background: #d7d2c7;
+  background: #ff82f2;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   --ink: #172238;
   --muted: #687180;
   --paper: #f4f0e8;
-  --paper-deep: #e7e1d6;
+  --paper-deep: #63014f;
   --navy: #172238;
   --coral: #ed765d;
-  --coral-deep: #c95343;
-  --lime: #c6da79;
+  --coral-deep: #fa00a2;
+  --lime: #fcff48;
   --line: 1px solid rgba(23, 34, 56, .27);
   --mono: 'DM Mono', monospace;
   --serif: 'Fraunces', Georgia, serif;
