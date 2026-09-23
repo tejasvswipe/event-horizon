@@ -70,3 +70,43 @@ main { max-width: 1440px; margin: auto; padding: 0 clamp(18px, 4vw, 60px) 60px; 
 @media (max-width: 820px) { .intro-grid { grid-template-columns: 1fr; gap: 28px; }.orbital-note { min-height: 155px; }.workspace { grid-template-columns: 1fr; }.date-desk { min-height: auto; padding: 28px 0; border-right: 0; border-bottom: var(--line); }.date-desk h2 br { display: none; }.desk-copy { max-width: 380px; }.date-tools { margin-top: 10px; padding-right: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 0 10px; }.date-tools label { grid-column: 1/-1; }.date-tools input { grid-column: 1/-1; }.shortcut { margin-top: 18px; }.observation { padding: 28px 0 0; }.apod-media { height: clamp(230px, 58vw, 420px); } }
 @media (max-width: 560px) { .topbar { height: 58px; }.topbar-note { display: none; }.log-toggle { margin-left: auto; }.intro-grid { padding-top: 60px; }.intro-copy h1 { font-size: clamp(54px, 16vw, 90px); }.lede { margin-left: 0; }.caption-row { flex-direction: column; gap: 5px; }.title-row { display: block; }.title-row h2 { margin-bottom: 13px; }.pin-button { margin-top: 0; }.footer { flex-wrap: wrap; }.footer span:nth-child(2) { display: none; }.log-drawer { padding: 28px 22px; }.drawer-head h2 { font-size: 42px; } }
 @media (prefers-reduced-motion: reduce) { *, *:before, *:after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; } }
+
+/* Neo-brutalist finish */
+:root {
+  --ink: #101010;
+  --muted: #4b4b4b;
+  --paper: #fff3d6;
+  --paper-deep: #ffd166;
+  --navy: #101010;
+  --coral: #ff5a36;
+  --coral-deep: #f00086;
+  --lime: #d7ff00;
+  --line: 2px solid var(--ink);
+}
+body { background: #f00086; }
+.site-shell { background: var(--paper); }
+.topbar { position: relative; z-index: 2; min-height: 74px; border-bottom: 2px solid var(--ink); background: var(--paper); }
+.top-sticker { position: absolute; top: 16px; left: clamp(18px, 4vw, 60px); z-index: 3; display: grid; width: 72px; height: 72px; place-content: center; transform: translate(-18px, -22px) rotate(-11deg); border: 3px solid var(--ink); border-radius: 50%; outline: 3px dashed var(--ink); outline-offset: 4px; background: var(--lime); box-shadow: 5px 5px 0 var(--ink); color: var(--ink); font: 700 11px/1 var(--mono); text-align: center; }
+.top-sticker span { display: block; font-size: 10px; }
+.top-sticker strong { display: block; color: var(--coral-deep); font: 700 22px/.9 var(--serif); }
+.wordmark { margin-left: 76px; }
+.wordmark-star { border: 2px solid var(--ink); border-radius: 0; background: var(--coral); color: var(--ink); transform: rotate(8deg); }
+.wordmark em, .eyebrow, .intro-copy h1 i, .observation-head span:first-child, .media-link { color: var(--coral-deep); }
+.orbital-note { border: 2px solid var(--ink); box-shadow: 8px 8px 0 var(--ink); }
+.workspace { border-top: 3px solid var(--ink); }
+.date-desk { border-right: 2px solid var(--ink); }
+.date-tools input { border: 2px solid var(--ink); background: #fff; box-shadow: 4px 4px 0 var(--ink); }
+.button { border: 2px solid var(--ink); box-shadow: 5px 5px 0 var(--ink); }
+.button:hover { transform: translate(2px, -2px); box-shadow: 7px 7px 0 var(--ink); }
+.button-ink { background: var(--ink); color: var(--lime); }
+.button-coral { background: var(--coral); }
+.image-frame { border: 3px solid var(--ink); box-shadow: 9px 9px 0 var(--coral-deep); }
+.pin-button { border: 2px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); background: var(--lime); }
+.pin-button:hover, .pin-button.is-saved { border-color: var(--ink); background: var(--coral); }
+.error-box { border: 2px solid var(--ink); box-shadow: 6px 6px 0 var(--coral-deep); background: #ffb6d9; }
+.footer { border-top: 2px solid var(--ink); background: var(--ink); }
+.log-drawer { border-left: 3px solid var(--ink); background: var(--paper); box-shadow: -12px 0 0 var(--coral-deep); }
+.close-button { border: 2px solid var(--ink); border-radius: 0; background: var(--coral); box-shadow: 3px 3px 0 var(--ink); }
+.saved-thumb { border: 2px solid var(--ink); box-shadow: 3px 3px 0 var(--ink); }
+.saved-item { border-top: 2px solid var(--ink); }
+@media (max-width: 560px) { .top-sticker { left: 16px; transform: translate(-7px, -19px) rotate(-11deg) scale(.82); }.wordmark { margin-left: 62px; } }

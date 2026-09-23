@@ -15,6 +15,7 @@ const state = {
 app.innerHTML = `
   <div class="site-shell">
     <header class="topbar">
+      <div class="top-sticker" aria-hidden="true"><span>LOOK</span><strong>UP!</strong></div>
       <a class="wordmark" href="#top" aria-label="Cosmic Daily home"><span class="wordmark-star">✦</span><span>cosmic<br><em>daily</em></span></a>
       <div class="topbar-note"><span class="pulse"></span>NASA / APOD FIELD NOTES <span class="topbar-date" id="topbar-date"></span></div>
       <button class="log-toggle" id="log-toggle" type="button"><span>orbit log</span><b id="saved-count">0</b></button>
