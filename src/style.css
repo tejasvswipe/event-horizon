@@ -108,3 +108,13 @@ body { background: #f00086; }
 .saved-thumb { border: 2px solid var(--ink); box-shadow: 3px 3px 0 var(--ink); }
 .saved-item { border-top: 2px solid var(--ink); }
 @media (max-width: 560px) { .top-sticker { left: 16px; width: 126px; transform: translate(-12px, -8px) rotate(-7deg); }.wordmark { margin-left: 82px; } }
+
+::selection { color: var(--paper); background: var(--coral-deep); }
+body { -webkit-font-smoothing: antialiased; }
+a:focus-visible, button:focus-visible, input:focus-visible {
+  outline: 3px solid var(--coral-deep);
+  outline-offset: 4px;
+}
+.log-toggle:hover { color: var(--coral-deep); }
+.close-button:hover { transform: translate(-1px, -1px) rotate(-4deg); }
+.media-link, .footer a { transition: color .16s ease, border-color .16s ease; }

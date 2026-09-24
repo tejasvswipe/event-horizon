@@ -1,11 +1,18 @@
+// ==========================================
+// COSMIC DAILY - Astro Pic viewer app
+// TODO: clean up some of these global variables later...
+// ==========================================
+
 import './style.css'
 import stickerUrl from './assets/images.png'
 
+// Check if API key is there, otherwise fallback to demo key (sometimes rate limits though 😬)
 const API_KEY = import.meta.env.VITE_NASA_API_KEY || 'DEMO_KEY'
 const today = new Date().toISOString().slice(0, 10)
 const app = document.querySelector('#app')
-const storageKey = 'cosmic-daily-orbit-log'
+const storageKey = 'cosmic-daily-orbit-log-v1' // bumped storage key just in case
 
+// Global app state object (maybe should use a store, but keeping it simple for now)
 const state = {
   date: today,
   current: null,
@@ -13,11 +20,12 @@ const state = {
   loading: false,
 }
 
+
 app.innerHTML = `
   <div class="site-shell">
     <header class="topbar">
       <img class="top-sticker" src="${stickerUrl}" alt="Hack Club" />
-      <a class="wordmark" href="#top" aria-label="Cosmic Daily home"><span class="wordmark-star">✦</span><span>cosmic<br><em>daily</em></span></a>
+      <a class="wordmark" href="#top" aria-label="Cosmic Daily home"><span class="wordmark-star"></span><span>cosmic<br><em>daily</em></span></a>;
       <div class="topbar-note"><span class="pulse"></span>NASA / APOD FIELD NOTES <span class="topbar-date" id="topbar-date"></span></div>
       <button class="log-toggle" id="log-toggle" type="button"><span>orbit log</span><b id="saved-count">0</b></button>
     </header>
@@ -70,7 +78,9 @@ app.innerHTML = `
   <div class="drawer-scrim" id="drawer-scrim"></div>
 `
 
+// Quick selector helper function (borrowed from jQuery style)
 const $ = (selector) => document.querySelector(selector)
+
 const datePicker = $('#date-picker')
 const result = $('#result')
 const signal = $('#signal-status')
@@ -81,50 +91,94 @@ const drawer = $('#log-drawer')
 datePicker.max = today
 datePicker.value = today
 
+// Local storage handlers
 function readSaved() {
-  try { return JSON.parse(localStorage.getItem(storageKey) || '[]') } catch { return [] }
+  try { 
+    const items = localStorage.getItem(storageKey)
+    return items ? JSON.parse(items) : [] 
+  } catch (err) {
+    console.warn("Couldn't read from localStorage:", err)
+    return [] 
+  }
 }
 
 function writeSaved() {
-  localStorage.setItem(storageKey, JSON.stringify(state.saved))
+  try {
+    localStorage.setItem(storageKey, JSON.stringify(state.saved))
+  } catch(e) {
+    alert("Storage is full or blocked!")
+  }
   renderSaved()
 }
 
-function escapeHTML(value = '') {
-  return String(value).replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#039;', '"': '&quot;' })[char])
+// Basic XSS prevention, though probably overkill for this project
+function escapeHTML(str) {
+  if (!str) return '';
+  return String(str).replace(/[&<>'"]/g, (char) => ({ 
+    '&': '&amp;', 
+    '<': '&lt;', 
+    '>': '&gt;', 
+    "'": '&#039;', 
+    '"': '&quot;' 
+  })[char])
 }
 
-function prettyDate(date) {
-  return new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(`${date}T12:00:00`))
+function prettyDate(dateStr) {
+  // sometimes dateStr comes weirdly formatted, let's make sure it parses
+  const d = new Date(`${dateStr}T12:00:00`)
+  return new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric', year: 'numeric' }).format(d)
 }
 
 function updateClock() {
   const now = new Date()
-  $('#clock').textContent = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(now)
-  $('#day-label').textContent = `${new Intl.DateTimeFormat(undefined, { weekday: 'long' }).format(now).toUpperCase()} / EARTH`
-  $('#topbar-date').textContent = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' }).format(now).toUpperCase()
+  const timeEl = $('#clock')
+  const dayEl = $('#day-label')
+  const topDateEl = $('#topbar-date')
+  
+  if (timeEl) timeEl.textContent = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(now)
+  if (dayEl) dayEl.textContent = `${new Intl.DateTimeFormat(undefined, { weekday: 'long' }).format(now).toUpperCase()} / EARTH`
+  if (topDateEl) topDateEl.textContent = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' }).format(now).toUpperCase()
 }
 
 function renderSaved() {
   savedCount.textContent = state.saved.length
-  if (!state.saved.length) {
+  
+  if (state.saved.length === 0) {
     savedList.innerHTML = '<div class="empty-log"><span>✦</span><p>Your log is quiet.<br>Pin a discovery to begin.</p></div>'
     return
   }
-  savedList.innerHTML = state.saved.map((item) => `
-    <article class="saved-item">
-      <button class="saved-thumb" data-open-date="${item.date}" type="button"><img src="${escapeHTML(item.thumb)}" alt="" loading="lazy" /></button>
-      <div><button class="saved-title" data-open-date="${item.date}" type="button">${escapeHTML(item.title)}</button><time>${prettyDate(item.date)}</time></div>
-      <button class="unpin" data-remove-date="${item.date}" type="button" aria-label="Remove ${escapeHTML(item.title)}">×</button>
-    </article>`).join('')
+  
+  // Mapping out saved items manually
+  let htmlString = ''
+  for (let i = 0; i < state.saved.length; i++) {
+    const item = state.saved[i]
+    htmlString += `
+      <article class="saved-item">
+        <button class="saved-thumb" data-open-date="${item.date}" type="button"><img src="${escapeHTML(item.thumb)}" alt="" loading="lazy" /></button>
+        <div><button class="saved-title" data-open-date="${item.date}" type="button">${escapeHTML(item.title)}</button><time>${prettyDate(item.date)}</time></div>
+        <button class="unpin" data-remove-date="${item.date}" type="button" aria-label="Remove item">×</button>
+      </article>`
+  }
+  savedList.innerHTML = htmlString
 }
 
-function isSaved(date) { return state.saved.some((item) => item.date === date) }
+function isSaved(date) { 
+  return state.saved.some((item) => item.date === date) 
+}
 
 function toggleSaved() {
   if (!state.current) return
-  if (isSaved(state.current.date)) state.saved = state.saved.filter((item) => item.date !== state.current.date)
-  else state.saved.unshift({ date: state.current.date, title: state.current.title, thumb: state.current.url })
+  
+  if (isSaved(state.current.date)) {
+    state.saved = state.saved.filter((item) => item.date !== state.current.date)
+  } else {
+    state.saved.unshift({ 
+      date: state.current.date, 
+      title: state.current.title, 
+      thumb: state.current.url 
+    })
+  }
+  
   writeSaved()
   renderCurrent()
 }
@@ -132,10 +186,16 @@ function toggleSaved() {
 function renderCurrent() {
   const data = state.current
   if (!data) return
-  const media = data.media_type === 'image'
-    ? `<img class="apod-media" src="${escapeHTML(data.url)}" alt="${escapeHTML(data.title)}" />`
-    : `<iframe class="apod-media" src="${escapeHTML(data.url)}" title="${escapeHTML(data.title)}" allowfullscreen></iframe>`
+  
+  let media = ''
+  if (data.media_type === 'image') {
+    media = `<img class="apod-media" src="${escapeHTML(data.url)}" alt="${escapeHTML(data.title)}" />`
+  } else {
+    media = `<iframe class="apod-media" src="${escapeHTML(data.url)}" title="${escapeHTML(data.title)}" allowfullscreen></iframe>`
+  }
+  
   const saved = isSaved(data.date)
+  
   result.innerHTML = `
     <article class="apod-card">
       <div class="image-frame">
@@ -148,61 +208,130 @@ function renderCurrent() {
       <p class="explanation">${escapeHTML(data.explanation)}</p>
       <a class="media-link" href="${escapeHTML(data.hdurl || data.url)}" target="_blank" rel="noreferrer">Open the original image <span>↗</span></a>
     </article>`
+    
   $('#pin-button').addEventListener('click', toggleSaved)
 }
 
+// Main fetch function from NASA API
 async function loadApod(date = today) {
   state.date = date
   state.loading = true
   result.innerHTML = '<p class="loading-line"><span></span>Receiving a transmission from space…</p>'
   signal.textContent = 'SIGNAL / SEARCHING'
   signal.classList.remove('online')
+  
   try {
-    const response = await fetch(`https://api.nasa.gov/planetary/apod?api_key=${API_KEY}&date=${date}`)
-    if (!response.ok) throw new Error(`NASA API returned ${response.status}`)
-    state.current = await response.json()
-    state.current.date = date
+    const res = await fetch(`https://api.nasa.gov/planetary/apod?api_key=${API_KEY}&date=${date}`)
+    if (!res.ok) {
+      throw new Error(`API error code: ${res.status}`)
+    }
+    
+    const json = await res.json()
+    state.current = json
+    state.current.date = date // make sure date matches what we asked for
+    
     $('#observation-index').textContent = `OBSERVATION ${date.slice(-2)} / ${date.slice(5, 7)}`
     signal.textContent = 'SIGNAL / ONLINE'
     signal.classList.add('online')
+    
     renderCurrent()
-  } catch (error) {
+  } catch (err) {
+    console.error("Failed fetching APOD:", err)
     signal.textContent = 'SIGNAL / OFFLINE'
-    result.innerHTML = `<div class="error-box"><span class="error-symbol">!</span><div><strong>TRANSMISSION INTERRUPTED</strong><p>NASA did not answer this time. Check your connection and try the reload button in your browser, or choose another date.</p></div></div>`
-    console.error(error)
-  } finally { state.loading = false }
+    result.innerHTML = `
+      <div class="error-box">
+        <span class="error-symbol">!</span>
+        <div>
+          <strong>TRANSMISSION INTERRUPTED</strong>
+          <p>NASA did not answer this time. Check your connection and try again later, or pick a different date.</p>
+        </div>
+      </div>`
+  } finally { 
+    state.loading = false 
+  }
 }
 
 function randomDate() {
+// APOD started on June 16, 1995! Let's pick randomly between then and today.
   const start = new Date('1995-06-16T12:00:00')
   const end = new Date(`${today}T12:00:00`)
-  const date = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()))
-  return date.toISOString().slice(0, 10)
+  const randomTime = start.getTime() + Math.random() * (end.getTime() - start.getTime())
+  const randomD = new Date(randomTime)
+  return randomD.toISOString().slice(0, 10)
 }
 
-function openLog() { drawer.classList.add('is-open'); drawer.setAttribute('aria-hidden', 'false'); document.body.classList.add('drawer-open') }
-function closeLog() { drawer.classList.remove('is-open'); drawer.setAttribute('aria-hidden', 'true'); document.body.classList.remove('drawer-open') }
+function openLog() { 
+  drawer.classList.add('is-open')
+  drawer.setAttribute('aria-hidden', 'false') 
+  document.body.classList.add('drawer-open') 
+}
 
-$('#today-button').addEventListener('click', () => { datePicker.value = today; loadApod(today) })
-$('#shuffle-button').addEventListener('click', () => { const date = randomDate(); datePicker.value = date; loadApod(date) })
+function closeLog() { 
+  drawer.classList.remove('is-open')
+  drawer.setAttribute('aria-hidden', 'true') 
+  document.body.classList.remove('drawer-open') 
+}
+
+// Event listeners wiring up
+$('#today-button').addEventListener('click', () => { 
+  datePicker.value = today
+  loadApod(today) 
+})
+
+$('#shuffle-button').addEventListener('click', () => { 
+  const rand = randomDate()
+  datePicker.value = rand
+  loadApod(rand) 
+})
+
 $('#log-toggle').addEventListener('click', openLog)
 $('#log-close').addEventListener('click', closeLog)
 $('#drawer-scrim').addEventListener('click', closeLog)
-datePicker.addEventListener('change', () => loadApod(datePicker.value))
+
+datePicker.addEventListener('change', (e) => {
+  loadApod(e.target.value)
+})
+
 savedList.addEventListener('click', (event) => {
   const openButton = event.target.closest('[data-open-date]')
   const removeButton = event.target.closest('[data-remove-date]')
-  if (openButton) { const date = openButton.dataset.openDate; datePicker.value = date; loadApod(date); closeLog() }
-  if (removeButton) { state.saved = state.saved.filter((item) => item.date !== removeButton.dataset.removeDate); writeSaved() }
-})
-document.addEventListener('keydown', (event) => {
-  if (event.target.matches('input')) return
-  if (event.key.toLowerCase() === 't') { datePicker.value = today; loadApod(today) }
-  if (event.key.toLowerCase() === 's') { const date = randomDate(); datePicker.value = date; loadApod(date) }
-  if (event.key === 'Escape') closeLog()
+  
+  if (openButton) { 
+    const date = openButton.dataset.openDate
+    datePicker.value = date
+    loadApod(date) 
+    closeLog() 
+  }
+  
+  if (removeButton) { 
+    const targetDate = removeButton.dataset.removeDate
+    state.saved = state.saved.filter((item) => item.date !== targetDate)
+    writeSaved() 
+  }
 })
 
+// Keyboard shortcuts handler
+document.addEventListener('keydown', (event) => {
+  // Don't trigger shortcuts if user is typing inside an input field
+  if (event.target.matches('input') || event.target.matches('textarea')) return
+  
+  const key = event.key.toLowerCase()
+  if (key === 't') { 
+    datePicker.value = today
+    loadApod(today) 
+  } else if (key === 's') { 
+    const rand = randomDate()
+    datePicker.value = rand
+    loadApod(rand) 
+  } else if (event.key === 'Escape') { 
+    closeLog() 
+  }
+})
+
+// Initial startup calls
 renderSaved()
 updateClock()
 setInterval(updateClock, 1000)
-loadApod()
+
+// Kick off with today's image!
+loadApod(today)
